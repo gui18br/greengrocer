@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CustomTextField extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool isScret;
+  final List<MaskTextInputFormatter>? inputFormatters;
 
   const CustomTextField({
     Key? key,
     required this.icon,
     required this.label,
     this.isScret = false,
+    this.inputFormatters,
   }) : super(key: key);
 
   @override
@@ -32,6 +35,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: TextFormField(
+        inputFormatters: widget.inputFormatters,
         obscureText: isObscure,
         decoration: InputDecoration(
             prefixIcon: Icon(widget.icon),
