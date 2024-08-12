@@ -4,18 +4,34 @@ import 'package:greengrocer/src/models/item_model.dart';
 import 'package:greengrocer/src/pages/product/product_screen.dart';
 import 'package:greengrocer/src/services/utils_service.dart';
 
-class ItemTitle extends StatelessWidget {
+class ItemTitle extends StatefulWidget {
   final ItemModel item;
   final void Function(GlobalKey) cartAnimationMethod;
-  final GlobalKey imageGk = GlobalKey();
 
-  ItemTitle({
+  const ItemTitle({
     Key? key,
     required this.item,
     required this.cartAnimationMethod,
   }) : super(key: key);
 
+  @override
+  State<ItemTitle> createState() => _ItemTitleState();
+}
+
+class _ItemTitleState extends State<ItemTitle> {
+  final GlobalKey imageGk = GlobalKey();
+
   final UtilsServices utilsServices = UtilsServices();
+
+  IconData titleIcon = Icons.add_shopping_cart_outlined;
+
+  Future<void> switchIcon() async {
+    setState(() => titleIcon = Icons.check);
+
+    await Future.delayed(const Duration(milliseconds: 1500));
+
+    setState(() => titleIcon = Icons.add_shopping_cart_outlined);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +40,7 @@ class ItemTitle extends StatelessWidget {
         GestureDetector(
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (c) {
-              return ProductScreen(item: item);
+              return ProductScreen(item: widget.item);
             }));
           },
           child: Card(
@@ -40,23 +56,25 @@ class ItemTitle extends StatelessWidget {
                     //Imagem
                     Expanded(
                         child: Hero(
-                            tag: item.imgUrl, child: Image.asset(item.imgUrl, key: imageGk))),
+                            tag: widget.item.imgUrl,
+                            child:
+                                Image.asset(widget.item.imgUrl, key: imageGk))),
                     //Nome
-                    Text(item.itemName,
+                    Text(widget.item.itemName,
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
                     //Preço - Unidade
                     Row(
                       children: [
                         Text(
-                          utilsServices.priceToCurrency(item.price),
+                          utilsServices.priceToCurrency(widget.item.price),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                             color: CustomColors.customSwatchColor,
                           ),
                         ),
-                        Text('/${item.unit}',
+                        Text('/${widget.item.unit}',
                             style: TextStyle(
                               color: Colors.grey.shade500,
                               fontWeight: FontWeight.bold,
@@ -71,26 +89,31 @@ class ItemTitle extends StatelessWidget {
         Positioned(
           top: 4,
           right: 4,
-          child: GestureDetector(
-            onTap: () {
-              cartAnimationMethod(imageGk);
-            },
-            child: Container(
-              height: 40,
-              width: 35,
-              decoration: BoxDecoration(
-                  color: CustomColors.customSwatchColor,
-                  borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(15),
-                      topRight: Radius.circular(20))),
-              child: const Icon(
-                Icons.add_shopping_cart_outlined,
-                color: Colors.white,
-                size: 20,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(15), topRight: Radius.circular(20)),
+            child: Material(
+              child: InkWell(
+                onTap: () {
+                  switchIcon();
+                  widget.cartAnimationMethod(imageGk);
+                },
+                child: Ink(
+                  height: 40,
+                  width: 35,
+                  decoration: BoxDecoration(
+                    color: CustomColors.customSwatchColor,
+                  ),
+                  child: Icon(
+                    titleIcon,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

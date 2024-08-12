@@ -13,14 +13,14 @@ class BaseScreen extends StatefulWidget {
 
 class _BaseScreenState extends State<BaseScreen> {
   int currentIndex = 0;
-  final PageController _pageController = PageController();
+  final PageController pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
-        controller: _pageController,
+        controller: pageController,
         onPageChanged: (index) {
           setState(() {
             currentIndex = index;
@@ -38,7 +38,12 @@ class _BaseScreenState extends State<BaseScreen> {
         onTap: (index) {
           setState(() {
             currentIndex = index;
-            _pageController.jumpToPage(index);
+            // pageController.jumpToPage(index);
+            pageController.animateToPage(
+              index,
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.ease,
+            );
           });
         },
         type: BottomNavigationBarType.fixed,
