@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:greengrocer/src/pages_routes/app_pages.dart';
 
 class AuthController extends GetxController {
   RxBool isLoading = false.obs;

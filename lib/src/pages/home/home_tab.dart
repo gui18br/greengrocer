@@ -1,7 +1,6 @@
 import 'package:add_to_cart_animation/add_to_cart_animation.dart';
 import 'package:add_to_cart_animation/add_to_cart_icon.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:greengrocer/src/config/custom_colors.dart';
 import 'package:greengrocer/src/pages/commom_widgets/app_name_widget.dart';
 import 'package:greengrocer/src/pages/commom_widgets/custom_shimmer.dart';
@@ -11,7 +10,7 @@ import 'package:greengrocer/src/pages/home/components/item_title.dart';
 import 'package:greengrocer/src/services/utils_service.dart';
 
 class HomeTab extends StatefulWidget {
-  const HomeTab({Key? key}) : super(key: key);
+  const HomeTab({super.key});
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -34,7 +33,6 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     Future.delayed(const Duration(seconds: 3), () {
