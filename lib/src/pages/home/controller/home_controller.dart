@@ -5,18 +5,30 @@ import 'package:greengrocer/src/pages/home/repository/home_repository.dart';
 import 'package:greengrocer/src/pages/home/result/home_result.dart';
 import 'package:greengrocer/src/services/utils_service.dart';
 
-const int ItemsPerPage = 6;
+const int itemsPerPage = 6;
 
 class HomeController extends GetxController {
   final homeRepository = HomeRepository();
   final utilsServices = UtilsServices();
 
-  bool isLoading = false;
+  bool isCategoryLoading = false;
+  bool isProductLoading = true;
   List<CategoryModel> allCategories = [];
   CategoryModel? currentCategory;
+  List<ItemModel> get allProducts => currentCategory?.items ?? [];
 
-  void setLoading(bool value) {
-    isLoading = value;
+  bool get isLastPage {
+    if (currentCategory!.items.length < itemsPerPage) return true;
+
+    return currentCategory!.pagination * itemsPerPage > allProducts.length;
+  }
+
+  void setLoading(bool value, {bool isProduct = false}) {
+    if (!isProduct) {
+      isCategoryLoading = value;
+    } else {
+      isProductLoading = value;
+    }
 
     update();
   }
@@ -32,15 +44,17 @@ class HomeController extends GetxController {
     currentCategory = category;
     update();
 
+    // if (currentCategory!.items.isNotEmpty) return;
+
     getAllProducts();
   }
 
   Future<void> getAllCategories() async {
-    setLoading(true);
+    setLoading(true, isProduct: true);
     HomeResult<CategoryModel> homeResult =
         await homeRepository.getAllCategories();
 
-    setLoading(false);
+    setLoading(false, isProduct: false);
 
     homeResult.when(
       success: (data) {
@@ -59,13 +73,15 @@ class HomeController extends GetxController {
     );
   }
 
-  Future<void> getAllProducts() async {
-    setLoading(true);
+  Future<void> getAllProducts({bool canLoad = true}) async {
+    if (canLoad) {
+      setLoading(true, isProduct: true);
+    }
 
     Map<String, dynamic> body = {
       'page': currentCategory!.pagination,
       'categoryId': currentCategory!.id,
-      "ItemsPerPage": ItemsPerPage,
+      "ItemsPerPage": itemsPerPage,
     };
 
     HomeResult<ItemModel> result = await homeRepository.getAllProducts(body);
@@ -74,11 +90,17 @@ class HomeController extends GetxController {
 
     result.when(
       success: (data) {
-        print(data);
+        currentCategory!.items = data;
       },
       error: (msg) {
         utilsServices.showToast(message: msg, isError: true);
       },
     );
+  }
+
+  void loadMoreProducts() {
+    currentCategory!.pagination++;
+
+    getAllProducts(canLoad: false);
   }
 }

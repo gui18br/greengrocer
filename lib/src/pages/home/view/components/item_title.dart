@@ -57,8 +57,8 @@ class _ItemTitleState extends State<ItemTitle> {
                     Expanded(
                         child: Hero(
                             tag: widget.item.imgUrl,
-                            child:
-                                Image.asset(widget.item.imgUrl, key: imageGk))),
+                            child: Image.network(widget.item.imgUrl,
+                                key: imageGk))),
                     //Nome
                     Text(widget.item.itemName,
                         style: const TextStyle(
