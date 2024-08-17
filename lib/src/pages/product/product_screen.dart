@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:greengrocer/src/config/custom_colors.dart';
 import 'package:greengrocer/src/models/item_model.dart';
+import 'package:greengrocer/src/pages/base/controller/navigation_controller.dart';
 import 'package:greengrocer/src/pages/commom_widgets/quantity_widget.dart';
 import 'package:greengrocer/src/services/utils_service.dart';
 
 class ProductScreen extends StatefulWidget {
-  ProductScreen({
-    Key? key,
+  const ProductScreen({
+    super.key,
     required this.item,
-  }) : super(key: key);
+  });
 
   final ItemModel item;
 
@@ -20,6 +22,7 @@ class _ProductScreenState extends State<ProductScreen> {
   final UtilsServices utilsServices = UtilsServices();
 
   int cartItemQuantity = 1;
+  final navigationController = NavigationController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class _ProductScreenState extends State<ProductScreen> {
             children: [
               Hero(
                   tag: widget.item.imgUrl,
-                  child: Expanded(child: Image.asset(widget.item.imgUrl))),
+                  child: Expanded(child: Image.network(widget.item.imgUrl))),
               Expanded(
                   child: Container(
                 padding: const EdgeInsets.all(32),
@@ -104,7 +107,11 @@ class _ProductScreenState extends State<ProductScreen> {
                               shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           )),
-                          onPressed: () {},
+                          onPressed: () {
+                            Get.back();
+                            navigationController
+                                .navigatePageView(NavigationTabs.cart);
+                          },
                           label: const Text(
                             'Adicionar ao carrinho',
                             style: TextStyle(
