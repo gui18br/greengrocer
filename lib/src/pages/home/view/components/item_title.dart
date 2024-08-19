@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:greengrocer/src/config/custom_colors.dart';
 import 'package:greengrocer/src/models/item_model.dart';
-import 'package:greengrocer/src/pages/product/product_screen.dart';
+import 'package:greengrocer/src/pages/cart/controller/cart_controller.dart';
+import 'package:greengrocer/src/pages_routes/app_pages.dart';
 import 'package:greengrocer/src/services/utils_service.dart';
 
 class ItemTitle extends StatefulWidget {
@@ -9,10 +11,10 @@ class ItemTitle extends StatefulWidget {
   final void Function(GlobalKey) cartAnimationMethod;
 
   const ItemTitle({
-    Key? key,
+    super.key,
     required this.item,
     required this.cartAnimationMethod,
-  }) : super(key: key);
+  });
 
   @override
   State<ItemTitle> createState() => _ItemTitleState();
@@ -22,80 +24,98 @@ class _ItemTitleState extends State<ItemTitle> {
   final GlobalKey imageGk = GlobalKey();
 
   final UtilsServices utilsServices = UtilsServices();
+  final cartController = Get.find<CartController>();
 
-  IconData titleIcon = Icons.add_shopping_cart_outlined;
+  IconData tileIcon = Icons.add_shopping_cart_outlined;
 
   Future<void> switchIcon() async {
-    setState(() => titleIcon = Icons.check);
-
+    setState(() => tileIcon = Icons.check);
     await Future.delayed(const Duration(milliseconds: 1500));
-
-    setState(() => titleIcon = Icons.add_shopping_cart_outlined);
+    setState(() => tileIcon = Icons.add_shopping_cart_outlined);
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Conteúdo
         GestureDetector(
           onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (c) {
-              return ProductScreen(item: widget.item);
-            }));
+            Get.toNamed(PagesRoutes.productRoute, arguments: widget.item);
           },
           child: Card(
-            elevation: 3,
+            elevation: 1,
             shadowColor: Colors.grey.shade300,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    //Imagem
-                    Expanded(
-                        child: Hero(
-                            tag: widget.item.imgUrl,
-                            child:
-                                Image.asset(widget.item.imgUrl, key: imageGk))),
-                    //Nome
-                    Text(widget.item.itemName,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    //Preço - Unidade
-                    Row(
-                      children: [
-                        Text(
-                          utilsServices.priceToCurrency(widget.item.price),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: CustomColors.customSwatchColor,
-                          ),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Imagem
+                  Expanded(
+                    child: Hero(
+                      tag: widget.item.imgUrl,
+                      child: Image.network(
+                        widget.item.imgUrl,
+                        key: imageGk,
+                      ),
+                    ),
+                  ),
+
+                  // Nome
+                  Text(
+                    widget.item.itemName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  // Preço - Unidade
+                  Row(
+                    children: [
+                      Text(
+                        utilsServices.priceToCurrency(widget.item.price),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: CustomColors.customSwatchColor,
                         ),
-                        Text('/${widget.item.unit}',
-                            style: TextStyle(
-                              color: Colors.grey.shade500,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ))
-                      ],
-                    )
-                  ]),
+                      ),
+                      Text(
+                        '/${widget.item.unit}',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
+
+        // Botão add carrinho
         Positioned(
           top: 4,
           right: 4,
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(15), topRight: Radius.circular(20)),
+              bottomLeft: Radius.circular(15),
+              topRight: Radius.circular(20),
+            ),
             child: Material(
               child: InkWell(
                 onTap: () {
                   switchIcon();
+                  cartController.addItemToCart(item: widget.item);
+
                   widget.cartAnimationMethod(imageGk);
                 },
                 child: Ink(
@@ -105,7 +125,7 @@ class _ItemTitleState extends State<ItemTitle> {
                     color: CustomColors.customSwatchColor,
                   ),
                   child: Icon(
-                    titleIcon,
+                    tileIcon,
                     color: Colors.white,
                     size: 20,
                   ),
